@@ -507,32 +507,34 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
                 }
             }
 
-            Color mygreen = Color.FromArgb(0, 255, 0);
-            int greygreen = (mygreen.R + mygreen.G + mygreen.B) / 3;
-            int threshold = 5;
+            removeBackground(imageA, imageB);
 
-            for (int y = 0; y < imageB.Height; y++)
-            {
-                for (int x = 0; x < imageB.Width; x++)
-                {
-                    Color pixelColor = imageA.GetPixel(x, y);
-                    Color backPixelColor = imageB.GetPixel(x, y);
-                    int greyValue = (pixelColor.R + pixelColor.G + pixelColor.B) / 3;
-                    int result = Math.Abs(greyValue - greygreen);
+            //Color mygreen = Color.FromArgb(0, 255, 0);
+            //int greygreen = (mygreen.R + mygreen.G + mygreen.B) / 3;
+            //int threshold = 5;
 
-                    if (result < threshold)
-                    {
-                        resultImage.SetPixel(x, y, backPixelColor);
-                    }
-                    else
-                    {
-                        resultImage.SetPixel(x, y, pixelColor);
-                    }
-                }
-            }
+            //for (int y = 0; y < imageB.Height; y++)
+            //{
+            //    for (int x = 0; x < imageB.Width; x++)
+            //    {
+            //        Color pixelColor = imageA.GetPixel(x, y);
+            //        Color backPixelColor = imageB.GetPixel(x, y);
+            //        int greyValue = (pixelColor.R + pixelColor.G + pixelColor.B) / 3;
+            //        int result = Math.Abs(greyValue - greygreen);
 
-            pictureBox3.Image = resultImage;
-            pictureBox3.Refresh();
+            //        if (result < threshold)
+            //        {
+            //            resultImage.SetPixel(x, y, backPixelColor);
+            //        }
+            //        else
+            //        {
+            //            resultImage.SetPixel(x, y, pixelColor);
+            //        }
+            //    }
+            //}
+
+            //pictureBox3.Image = resultImage;
+            //pictureBox3.Refresh();
 
         }
 
@@ -563,6 +565,88 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         private void label2_Click(object sender, EventArgs e)
         {
 
+        }
+
+        // better background removal
+        private void removeBackground(Bitmap a, Bitmap imageB)
+        {
+
+            resultImage = new Bitmap(a);
+            Color chromaKey = Color.FromArgb(0, 255, 0);
+
+            double threshold = 80;
+
+            for (int y = 0; y < a.Height; y++)
+            {
+                for (int x = 0; x < a.Width; x++)
+                {
+                    Color fg = a.GetPixel(x, y);
+                    Color bg = imageB.GetPixel(x, y);
+
+                    
+                    double distance = ColorDistance(fg, chromaKey);
+
+                    if (distance < threshold)
+                    {
+                        
+                        double alpha = distance / threshold;
+                        int r = (int)(fg.R * alpha + bg.R * (1 - alpha));
+                        int g = (int)(fg.G * alpha + bg.G * (1 - alpha));
+                        int b = (int)(fg.B * alpha + bg.B * (1 - alpha));
+                        resultImage.SetPixel(x, y, Color.FromArgb(r, g, b));
+                    }
+                    else
+                    {
+                        resultImage.SetPixel(x, y, fg);
+                    }
+
+
+
+                }
+            }
+
+            pictureBox3.Image = resultImage;
+            pictureBox3.Refresh();
+        }
+
+        // using HSV
+        private void HSVremove()
+        {
+            for(int y = 0; y < imageA.Height; y++)
+            {
+                for(int x = 0; x < imageA.Width; x++)
+                {
+                    Color pixelColor = imageA.GetPixel(x, y);
+                    if (isGreen(pixelColor))
+                    {
+                        Color backPixelColor = imageB.GetPixel(x, y);
+                        resultImage.SetPixel(x, y, backPixelColor);
+                    }
+                    else
+                    {
+                        resultImage.SetPixel(x, y, pixelColor);
+                    }
+                }
+            }
+
+            pictureBox3.Image = resultImage;
+            pictureBox3.Refresh();
+        }
+
+        private bool isGreen(Color p)
+            
+        {
+            if (p.GetHue() >= 60 && p.GetHue() <= 130 && p.GetBrightness() >= 0.4 && p.GetBrightness() <= 0.3)
+                return true;
+            return false;
+        }
+
+        private double ColorDistance(Color c1, Color c2)
+        {
+            int rDiff = c1.R - c2.R;
+            int gDiff = c1.G - c2.G;
+            int bDiff = c1.B - c2.B;
+            return Math.Sqrt(rDiff * rDiff + gDiff * gDiff + bDiff * bDiff);
         }
     }
 }
