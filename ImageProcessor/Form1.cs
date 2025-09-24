@@ -1,4 +1,8 @@
-﻿using RagoAlgo;
+﻿using AForge.Video;
+using Emgu.CV;
+using ImageProcessor.Rago;
+using RagoAlgo;
+using RagoAlgo;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
@@ -8,19 +12,37 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Runtime.Remoting.Channels;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ImageProcessor
 {
     public partial class Form1 : Form
     {
+        private enum FilterMode
+        {
+            None,
+            Greyscale,
+            Inversion,
+            Sepia,
+        }
+
+        private enum Mode
+        {
+            ImageProcessing,
+            VideoProcessing
+        }
+
         private Bitmap imageA;
         private Bitmap imageB;
         private Bitmap resultImage;
+
+        private VideoCapture _capture;
+        private Timer _timer;
+
+        private FilterMode filter;
+        private Mode mode;
+
+
 
         public Form1()
         {
@@ -30,6 +52,46 @@ namespace ImageProcessor
             imageB = null;
             resultImage = null;
             ConfigureForTwo();
+            filter = FilterMode.None;
+            mode = Mode.ImageProcessing;
+            
+            _capture = new VideoCapture(0);
+            _timer = null;
+        }
+
+        private void ProcessFrame(object sender, EventArgs e)
+        {
+            if (_capture != null && _capture.Ptr != IntPtr.Zero)
+            {
+                using (Mat frame = _capture.QueryFrame())
+                {
+                    if (frame != null)
+                    {
+                        //Bitmap bitmap = frame.ToBitmap();
+
+                        Bitmap filtered;
+                        switch (filter)
+                        {
+                            case FilterMode.Greyscale:
+                                filtered = PixelFilters.ApplyFilter(frame.ToBitmap(), Rago.PixelFilters.Grayscale);
+                                break;
+                            case FilterMode.Inversion:
+                                filtered = PixelFilters.ApplyFilter(frame.ToBitmap(), Rago.PixelFilters.Invert);
+                                break;
+                            case FilterMode.Sepia:
+                                filtered = PixelFilters.ApplyFilter(frame.ToBitmap(), Rago.PixelFilters.Sepia);
+                                break;
+                            default:
+                                filtered = frame.ToBitmap();
+                                break;
+
+                        }
+
+                        pictureBox1.Image?.Dispose();
+                        pictureBox1.Image = filtered;
+                    }
+                }
+            }
         }
 
         private void openFileToolStripMenuItem_Click(object sender, EventArgs e)
@@ -172,10 +234,22 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             imageA.Dispose();
             imageB.Dispose();
+
+            _timer.Stop();
+            _capture.Dispose();
+            //base.OnFormClosing(e);
         }
+
+
 
         private void greyscaleButton_Click(object sender, EventArgs e)
         {
+            if (mode == Mode.VideoProcessing)
+            {
+                filter = FilterMode.Greyscale;
+                return;
+            }
+
             if (pictureBox1.Image == null)
             {
                 MessageBox.Show("Please load an image first.");
@@ -203,10 +277,17 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
 
 
             MessageBox.Show("The image has been converted to greyscale.");
+            
         }
 
         private void colorInversionButton_Click(object sender, EventArgs e)
         {
+            if (mode == Mode.VideoProcessing)
+            {
+                filter = FilterMode.Inversion;
+                return;
+            }
+
             if (pictureBox1.Image == null)
             {
                 MessageBox.Show("Please load an image first.");
@@ -253,7 +334,7 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
                 }
             }
 
-            imageB = ResizeImage(Rago.histogram(imageA, magnitude), imageA.Width, imageA.Height);
+            imageB = ResizeImage(RagoAlgo.Rago.histogram(imageA, magnitude), imageA.Width, imageA.Height);
             pictureBox2.Image = imageB;
             pictureBox2.Refresh();
             MessageBox.Show("The histogram has been generated.");
@@ -261,6 +342,11 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
 
         private void sepiaButton_Click(object sender, EventArgs e)
         {
+            if (mode == Mode.VideoProcessing)
+            {
+                filter = FilterMode.Sepia;
+                return;
+            }
             if (pictureBox1.Image == null)
             {
                 MessageBox.Show("Please load an image first.");
@@ -482,13 +568,6 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
                 }
             }
         }
-    
-
-
-            //imageA = ResizeImage(Image.FromFile(openFileDialog1.FileName), pictureBox1.Width, pictureBox1.Height);
-            //pictureBox1.Image = imageA;
-            //imageB = new Bitmap(imageA.Width, imageA.Height);
-            //pictureBox2.Image = imageB;
         
 
         private void ProcessChromaKey(object sender, EventArgs e)
@@ -508,34 +587,6 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
             }
 
             removeBackground(imageA, imageB);
-
-            //Color mygreen = Color.FromArgb(0, 255, 0);
-            //int greygreen = (mygreen.R + mygreen.G + mygreen.B) / 3;
-            //int threshold = 5;
-
-            //for (int y = 0; y < imageB.Height; y++)
-            //{
-            //    for (int x = 0; x < imageB.Width; x++)
-            //    {
-            //        Color pixelColor = imageA.GetPixel(x, y);
-            //        Color backPixelColor = imageB.GetPixel(x, y);
-            //        int greyValue = (pixelColor.R + pixelColor.G + pixelColor.B) / 3;
-            //        int result = Math.Abs(greyValue - greygreen);
-
-            //        if (result < threshold)
-            //        {
-            //            resultImage.SetPixel(x, y, backPixelColor);
-            //        }
-            //        else
-            //        {
-            //            resultImage.SetPixel(x, y, pixelColor);
-            //        }
-            //    }
-            //}
-
-            //pictureBox3.Image = resultImage;
-            //pictureBox3.Refresh();
-
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -609,30 +660,6 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
             pictureBox3.Refresh();
         }
 
-        // using HSV
-        private void HSVremove()
-        {
-            for(int y = 0; y < imageA.Height; y++)
-            {
-                for(int x = 0; x < imageA.Width; x++)
-                {
-                    Color pixelColor = imageA.GetPixel(x, y);
-                    if (isGreen(pixelColor))
-                    {
-                        Color backPixelColor = imageB.GetPixel(x, y);
-                        resultImage.SetPixel(x, y, backPixelColor);
-                    }
-                    else
-                    {
-                        resultImage.SetPixel(x, y, pixelColor);
-                    }
-                }
-            }
-
-            pictureBox3.Image = resultImage;
-            pictureBox3.Refresh();
-        }
-
         private bool isGreen(Color p)
             
         {
@@ -648,6 +675,65 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
             int bDiff = c1.B - c2.B;
             return Math.Sqrt(rDiff * rDiff + gDiff * gDiff + bDiff * bDiff);
         }
+
+        private void useCameraToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (useCameraToolStripMenuItem.Text.Equals("Use Camera"))
+                StartCamera();
+            else
+                closeCamera();
+
+
+        }
+
+        private void StartCamera()
+        {
+            if (_capture == null)
+            {
+               _capture = new VideoCapture(0);
+            }
+
+            // Start the timer for frame processing
+            if (_timer == null)
+            {
+                _timer = new Timer();
+                _timer.Interval = 30; // ~30 FPS
+                _timer.Tick += ProcessFrame;
+            }
+
+            mode = Mode.VideoProcessing;
+            useCameraToolStripMenuItem.Text = "Close Camera";
+            _timer.Start();
+        }
+
+
+        private void closeCamera()
+        {
+            if (_timer.Enabled)
+            {
+                _timer.Stop();
+            }
+
+            if (_capture != null)
+            {
+                _capture.Dispose();
+                _capture = null;
+            }
+
+            mode = Mode.ImageProcessing;
+            filter = FilterMode.None;
+
+            ClearAll();
+
+            pictureBox1.Image?.Dispose();
+            pictureBox1.Image = null;
+
+            useCameraToolStripMenuItem.Text = "Use Camera";
+        }
+
+
     }
+
+    //test
 }
 
