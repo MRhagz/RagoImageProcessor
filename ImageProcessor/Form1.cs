@@ -731,9 +731,79 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
             useCameraToolStripMenuItem.Text = "Use Camera";
         }
 
+        private void smoothenToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            resultImage?.Dispose();
+            resultImage = imageA.Clone() as Bitmap;
+            AliacAlgo.AliacAlgo.Smooth(resultImage, 1);
+            pictureBox2.Image?.Dispose();
+            pictureBox2.Image = resultImage;
+        }
+
+        private void guassianBlurToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            resultImage?.Dispose();
+            resultImage = imageA.Clone() as Bitmap;
+            AliacAlgo.AliacAlgo.GaussianBlur(resultImage, 4);
+            pictureBox2.Image?.Dispose();
+            pictureBox2.Image = resultImage;
+        }
+
+        private void sharpenToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            resultImage?.Dispose();
+            resultImage = imageA.Clone() as Bitmap;
+            AliacAlgo.AliacAlgo.Sharpen(resultImage, 11);
+            pictureBox2.Image?.Dispose();
+            pictureBox2.Image = resultImage;
+        }
+
+        private void Emboss(object sender, EventArgs e)
+        {
+            var buttSender = (ToolStripMenuItem)sender;
+            if (buttSender != null)
+            {
+                resultImage?.Dispose();
+                resultImage = imageA.Clone() as Bitmap;
+
+                switch (buttSender.Name)
+                {
+                    case "laplascian":
+                        AliacAlgo.AliacAlgo.LaplascianEmboss(resultImage);
+                        break;
+                    case "horzVert":
+                        AliacAlgo.AliacAlgo.HorzVertEmboss(resultImage);
+                        break;
+                    case "allDirections":
+                        AliacAlgo.AliacAlgo.AllDirectionsEmboss(resultImage);
+                        break ;
+                    case "lossy":
+                        AliacAlgo.AliacAlgo.LossyEmboss(resultImage);
+                        break;
+                    case "horizontal":
+                        AliacAlgo.AliacAlgo.HorizontalEmboss(resultImage);
+                        break;
+                    case "vertical":
+                        AliacAlgo.AliacAlgo.VerticalEmboss(resultImage);
+                        break;
+                    default:
+                        MessageBox.Show("Unknown emboss type.");
+                        break;
+                }
+
+
+                pictureBox2.Image?.Dispose();
+                pictureBox2.Image = resultImage;
+            }
+            else
+            {
+                MessageBox.Show("Unknown emboss type.");
+            }
+        }
 
     }
 
     //test
 }
+
 
