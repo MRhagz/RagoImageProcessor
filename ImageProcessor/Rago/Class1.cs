@@ -12,48 +12,16 @@ namespace ImageProcessor.Rago
         /// <summary>
         /// Applies a pixel-level filter to a bitmap using fast memory access (LockBits).
         /// </summary>
-        public static Bitmap ApplyFilter(Bitmap source, PixelFilter filter)
+        /// 
+
+        public enum ConvolutionFilter
         {
-            Bitmap result = new Bitmap(source.Width, source.Height, PixelFormat.Format24bppRgb);
-            Rectangle rect = new Rectangle(0, 0, source.Width, source.Height);
-
-            BitmapData srcData = source.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-            BitmapData dstData = result.LockBits(rect, ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
-
-            int stride = srcData.Stride;
-            IntPtr srcScan0 = srcData.Scan0;
-            IntPtr dstScan0 = dstData.Scan0;
-
-            unsafe
-            {
-                byte* pSrc = (byte*)srcScan0;
-                byte* pDst = (byte*)dstScan0;
-
-                for (int y = 0; y < source.Height; y++)
-                {
-                    for (int x = 0; x < source.Width; x++)
-                    {
-                        int idx = y * stride + x * 3;
-
-                        byte b = pSrc[idx];
-                        byte g = pSrc[idx + 1];
-                        byte r = pSrc[idx + 2];
-
-                        filter(ref r, ref g, ref b);
-
-                        pDst[idx] = b;
-                        pDst[idx + 1] = g;
-                        pDst[idx + 2] = r;
-                    }
-                }
-            }
-
-            source.UnlockBits(srcData);
-            result.UnlockBits(dstData);
-
-            return result;
+            Laplascian,
+            GaussianBlur,
+            Sharpen,
+            EdgeDetect
         }
-        
+
         public static void ApplyFiter(ref Bitmap source, PixelFilter filter)
         {
             int width = source.Width;
@@ -90,6 +58,19 @@ namespace ImageProcessor.Rago
             source.UnlockBits(srcData);
         }
 
+        public static void ApplyConvolutionFilter(Bitmap source, ConvolutionFilter filterType)
+        {
+            switch (filterType)
+            {
+                case ConvolutionFilter.Laplascian:
+                    Laplascian(source);
+                    break;
+                // Implement other cases as needed
+                default:
+                    throw new NotImplementedException($"Filter {filterType} not implemented.");
+            }
+        }
+         
         public static void ApplyConvolutionFilters(Bitmap source, PixelFilter filter) 
         {
 
@@ -117,6 +98,11 @@ namespace ImageProcessor.Rago
             r = Clamp((int)(0.393 * originalR + 0.769 * originalG + 0.189 * originalB));
             g = Clamp((int)(0.349 * originalR + 0.686 * originalG + 0.168 * originalB));
             b = Clamp((int)(0.272 * originalR + 0.534 * originalG + 0.131 * originalB));
+        }
+
+        public static void Laplascian(Bitmap image)
+        {
+            AliacAlgo.AliacAlgo.LaplascianEmboss(image);
         }
 
         private static byte Clamp(int value)

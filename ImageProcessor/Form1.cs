@@ -24,6 +24,7 @@ namespace ImageProcessor
             Greyscale,
             Inversion,
             Sepia,
+            Laplascian
         }
 
         private enum Mode
@@ -42,11 +43,8 @@ namespace ImageProcessor
         private FilterMode filter;
         private Mode mode;
 
-
-
         public Form1()
         {
-            
             InitializeComponent();
             imageA = null;
             imageB = null;
@@ -80,6 +78,9 @@ namespace ImageProcessor
                                 break;
                             case FilterMode.Sepia:
                                 PixelFilters.ApplyFiter(ref filtered, Rago.PixelFilters.Sepia);
+                                break;
+                            case FilterMode.Laplascian:
+                                AliacAlgo.AliacAlgo.LaplascianEmboss(filtered);
                                 break;
                             default:
                                 break;
@@ -762,13 +763,21 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
             var buttSender = (ToolStripMenuItem)sender;
             if (buttSender != null)
             {
-                resultImage?.Dispose();
-                resultImage = imageA.Clone() as Bitmap;
+                //    resultImage?.Dispose();
+                //    resultImage = imageA;
 
                 switch (buttSender.Name)
                 {
                     case "laplascian":
-                        AliacAlgo.AliacAlgo.LaplascianEmboss(resultImage);
+                        if (mode == Mode.VideoProcessing)
+                        {
+                            filter = FilterMode.Laplascian;
+                        }
+                        else
+                        {
+
+                            AliacAlgo.AliacAlgo.LaplascianEmboss(resultImage);
+                        }
                         break;
                     case "horzVert":
                         AliacAlgo.AliacAlgo.HorzVertEmboss(resultImage);
@@ -791,8 +800,8 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
                 }
 
 
-                pictureBox2.Image?.Dispose();
-                pictureBox2.Image = resultImage;
+                //pictureBox2.Image?.Dispose();
+                //pictureBox2.Image = resultImage;
             }
             else
             {
