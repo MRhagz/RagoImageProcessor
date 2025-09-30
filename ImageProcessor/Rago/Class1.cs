@@ -53,6 +53,47 @@ namespace ImageProcessor.Rago
 
             return result;
         }
+        
+        public static void ApplyFiter(ref Bitmap source, PixelFilter filter)
+        {
+            int width = source.Width;
+            int height = source.Height;
+
+            Rectangle rect = new Rectangle(0, 0, width, height);
+
+            BitmapData srcData = source.LockBits(rect, ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+            int stride = srcData.Stride;
+
+            IntPtr srcScan0 = srcData.Scan0;
+
+            
+            unsafe
+            {
+                byte* pSrc = (byte*)srcScan0;
+                for(int y = 0; y< height; y++)
+                {
+                    for(int x = 0; x < width; x++)
+                    {
+                        int idx = y * stride + x * 3;
+
+                        byte b = pSrc[idx];
+                        byte g = pSrc[idx + 1];
+                        byte r = pSrc[idx + 2];
+
+                        filter(ref r, ref g, ref b);
+                        pSrc[idx] = b;
+                        pSrc[idx + 1] = g;
+                        pSrc[idx + 2] = r;
+                    }
+                }
+            }
+            source.UnlockBits(srcData);
+        }
+
+        public static void ApplyConvolutionFilters(Bitmap source, PixelFilter filter) 
+        {
+
+        }
 
         // Example Filters:
 

@@ -69,20 +69,19 @@ namespace ImageProcessor
                     {
                         //Bitmap bitmap = frame.ToBitmap();
 
-                        Bitmap filtered;
+                        Bitmap filtered = frame.ToBitmap();
                         switch (filter)
                         {
                             case FilterMode.Greyscale:
-                                filtered = PixelFilters.ApplyFilter(frame.ToBitmap(), Rago.PixelFilters.Grayscale);
+                                PixelFilters.ApplyFiter(ref filtered, Rago.PixelFilters.Grayscale);
                                 break;
                             case FilterMode.Inversion:
-                                filtered = PixelFilters.ApplyFilter(frame.ToBitmap(), Rago.PixelFilters.Invert);
+                                PixelFilters.ApplyFiter(ref filtered, Rago.PixelFilters.Invert);
                                 break;
                             case FilterMode.Sepia:
-                                filtered = PixelFilters.ApplyFilter(frame.ToBitmap(), Rago.PixelFilters.Sepia);
+                                PixelFilters.ApplyFiter(ref filtered, Rago.PixelFilters.Sepia);
                                 break;
                             default:
-                                filtered = frame.ToBitmap();
                                 break;
 
                         }
