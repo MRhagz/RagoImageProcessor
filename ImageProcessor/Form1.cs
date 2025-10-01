@@ -24,6 +24,10 @@ namespace ImageProcessor
             Greyscale,
             Inversion,
             Sepia,
+            Smoothen,
+            GaussianBlur,
+            Sharpen,
+            MeanRemoval,
             Laplascian,
             HorzVert,
             AllDirections,
@@ -83,6 +87,18 @@ namespace ImageProcessor
                                 break;
                             case FilterMode.Sepia:
                                 PixelFilters.ApplyFiter(ref filtered, Rago.PixelFilters.Sepia);
+                                break;
+                            case FilterMode.Smoothen:
+                                PixelFilters.ApplyConvolutionFilter(ref filtered, Rago.PixelFilters.Smoothen);
+                                break;
+                            case FilterMode.GaussianBlur:
+                                PixelFilters.ApplyConvolutionFilter(ref filtered, Rago.PixelFilters.GuassianBlur);
+                                break;
+                            case FilterMode.Sharpen:
+                                PixelFilters.ApplyConvolutionFilter(ref filtered, Rago.PixelFilters.Sharpen);
+                                break;
+                            case FilterMode.MeanRemoval:
+                                PixelFilters.ApplyConvolutionFilter(ref filtered, Rago.PixelFilters.MeanRemoval);
                                 break;
                             case FilterMode.Laplascian:
                                 //AliacAlgo.AliacAlgo.LaplascianEmboss(filtered);
@@ -417,7 +433,7 @@ namespace ImageProcessor
             overlayButton.ForeColor = Color.White;
             //overlayButton.Dock = DockStyle.Bottom;
             overlayButton.SetBounds(pictureBox1.Width - 200 / 2, pictureBox1.Height, 200, 60); // position inside PictureBox
-            overlayButton.Click += new EventHandler(Capture);
+            overlayButton.Click += new EventHandler(CaptureImage);
 
             pictureBox1.Controls.Add(overlayButton);
 
@@ -789,6 +805,11 @@ namespace ImageProcessor
 
         private void smoothenToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (mode == Mode.VideoProcessing)
+            {
+                filter = FilterMode.Smoothen;
+                return;
+            }
             resultImage?.Dispose();
             resultImage = imageA.Clone() as Bitmap;
             AliacAlgo.AliacAlgo.Smooth(resultImage, 1);
@@ -796,8 +817,13 @@ namespace ImageProcessor
             pictureBox2.Image = resultImage;
         }
 
-        private void guassianBlurToolStripMenuItem_Click(object sender, EventArgs e)
+        private void gaussianBlurToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (mode == Mode.VideoProcessing)
+            {
+                filter = FilterMode.GaussianBlur;
+                return;
+            }
             resultImage?.Dispose();
             resultImage = imageA.Clone() as Bitmap;
             AliacAlgo.AliacAlgo.GaussianBlur(resultImage, 4);
@@ -807,6 +833,11 @@ namespace ImageProcessor
 
         private void sharpenToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (mode == Mode.VideoProcessing)
+            {
+                filter = FilterMode.Sharpen;
+                return;
+            }
             resultImage?.Dispose();
             resultImage = imageA.Clone() as Bitmap;
             AliacAlgo.AliacAlgo.Sharpen(resultImage, 11);
@@ -820,7 +851,17 @@ namespace ImageProcessor
             if (buttSender != null)
             {
                 //    resultImage?.Dispose();
-                resultImage = (Bitmap)imageA.Clone();
+                if (mode == Mode.ImageProcessing)
+                {
+                    if (imageA == null)
+                    {
+                        MessageBox.Show("Please load an image first.");
+                        return;
+                    }
+                    resultImage = (Bitmap)imageA.Clone();
+                    
+                }
+                
 
                 switch (buttSender.Name)
                 {
@@ -893,7 +934,7 @@ namespace ImageProcessor
             }
         }
 
-        private void Capture(Object sender, EventArgs eventArgs)
+        private void CaptureImage(Object sender, EventArgs eventArgs)
         {
             if (mode == Mode.VideoProcessing)
             {
@@ -912,6 +953,12 @@ namespace ImageProcessor
 
         private void meanRemovalToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (mode == Mode.VideoProcessing)
+            {
+                filter = FilterMode.MeanRemoval;
+                return;
+            }
+
             resultImage?.Dispose();
             resultImage = imageA.Clone() as Bitmap;
             AliacAlgo.AliacAlgo.MeanRemoval(resultImage, 9);

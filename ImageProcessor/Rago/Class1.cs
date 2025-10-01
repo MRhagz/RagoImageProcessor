@@ -62,11 +62,6 @@ namespace ImageProcessor.Rago
         {
             filter(ref source);
         }
-         
-        public static void ApplyConvolutionFilters(Bitmap source, PixelFilter filter) 
-        {
-
-        }
 
         // Example Filters:
 
@@ -97,7 +92,7 @@ namespace ImageProcessor.Rago
             AliacAlgo.AliacAlgo.Smooth(image, 1);
         }
 
-        public static void GuassianBlue(ref Bitmap image)
+        public static void GuassianBlur(ref Bitmap image)
         {
             AliacAlgo.AliacAlgo.GaussianBlur(image, 4);
         }
