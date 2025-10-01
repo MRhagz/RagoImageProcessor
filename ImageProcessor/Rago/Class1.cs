@@ -92,6 +92,27 @@ namespace ImageProcessor.Rago
             b = Clamp((int)(0.272 * originalR + 0.534 * originalG + 0.131 * originalB));
         }
 
+        public static void Smoothen(ref Bitmap image)
+        {
+            AliacAlgo.AliacAlgo.Smooth(image, 1);
+        }
+
+        public static void GuassianBlue(ref Bitmap image)
+        {
+            AliacAlgo.AliacAlgo.GaussianBlur(image, 4);
+        }
+
+        public static void Sharpen(ref Bitmap image)
+        {
+            AliacAlgo.AliacAlgo.Sharpen(image, 11);
+        }
+
+        public static void MeanRemoval(ref Bitmap image)
+        {
+            AliacAlgo.AliacAlgo.MeanRemoval(image, 9);
+        }
+
+
         public static void Laplascian(ref Bitmap image)
         {
             AliacAlgo.AliacAlgo.LaplascianEmboss(image);
@@ -121,6 +142,7 @@ namespace ImageProcessor.Rago
         {
             AliacAlgo.AliacAlgo.VerticalEmboss(image);
         }
+
 
 
 

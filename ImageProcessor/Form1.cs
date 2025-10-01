@@ -57,7 +57,7 @@ namespace ImageProcessor
             ConfigureForTwo();
             filter = FilterMode.None;
             mode = Mode.ImageProcessing;
-            
+
             _capture = new VideoCapture(0);
             _timer = null;
         }
@@ -121,55 +121,55 @@ namespace ImageProcessor
         }
 
 
-private void saveToolStripMenuItem_Click(object sender, EventArgs e)
-    {
-        if (pictureBox2.Image == null || removeBackgroundToolStripMenuItem.Text.Equals("Edit Image") && (pictureBox3 == null || pictureBox3.Image == null))
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("There is no image to save.");
-            return;
+            if (pictureBox2.Image == null || removeBackgroundToolStripMenuItem.Text.Equals("Edit Image") && (pictureBox3 == null || pictureBox3.Image == null))
+            {
+                MessageBox.Show("There is no image to save.");
+                return;
+            }
+
+            SaveFileDialog saveDialog = new SaveFileDialog();
+            saveDialog.Filter = "PNG Image|*.png|JPEG Image|*.jpg;*.jpeg";
+            DialogResult result = saveDialog.ShowDialog();
+
+            if (result != DialogResult.OK)
+            {
+                return;
+            }
+
+            if (pictureBox2.Image != null && !removeBackgroundToolStripMenuItem.Text.Equals("Edit Image"))
+            {
+                SaveImage(pictureBox2.Image, saveDialog.FileName);
+            }
+            else
+            {
+                SaveImage(pictureBox3.Image, saveDialog.FileName);
+            }
         }
 
-        SaveFileDialog saveDialog = new SaveFileDialog();
-        saveDialog.Filter = "PNG Image|*.png|JPEG Image|*.jpg;*.jpeg";
-        DialogResult result = saveDialog.ShowDialog();
-
-        if (result != DialogResult.OK)
+        private void SaveImage(Image image, string filename)
         {
-            return;
+            string ext = Path.GetExtension(filename).ToLower();
+
+            if (ext == ".jpg" || ext == ".jpeg")
+            {
+                image.Save(filename, ImageFormat.Jpeg);
+            }
+            else if (ext == ".png")
+            {
+                image.Save(filename, ImageFormat.Png);
+            }
+            else
+            {
+                // Default to PNG if extension is missing or unrecognized
+                filename += ".png";
+                image.Save(filename, ImageFormat.Png);
+            }
         }
 
-        if (pictureBox2.Image != null && !removeBackgroundToolStripMenuItem.Text.Equals("Edit Image"))
-        {
-            SaveImage(pictureBox2.Image, saveDialog.FileName);
-        }
-        else
-        {
-            SaveImage(pictureBox3.Image, saveDialog.FileName);
-        }
-    }
 
-    private void SaveImage(Image image, string filename)
-    {
-        string ext = Path.GetExtension(filename).ToLower();
-
-        if (ext == ".jpg" || ext == ".jpeg")
-        {
-            image.Save(filename, ImageFormat.Jpeg);
-        }
-        else if (ext == ".png")
-        {
-            image.Save(filename, ImageFormat.Png);
-        }
-        else
-        {
-            // Default to PNG if extension is missing or unrecognized
-            filename += ".png";
-            image.Save(filename, ImageFormat.Png);
-        }
-    }
-
-
-    private void toolStripComboBox1_Click(object sender, EventArgs e)
+        private void toolStripComboBox1_Click(object sender, EventArgs e)
         {
 
         }
@@ -298,7 +298,7 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
 
 
             MessageBox.Show("The image has been converted to greyscale.");
-            
+
         }
 
         private void colorInversionButton_Click(object sender, EventArgs e)
@@ -404,6 +404,37 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
 
         }
 
+        private void configureForCamera()
+        {
+            Button overlayButton = new Button()
+            {
+                Name = "OverlayButton",
+                Text = "Capture",
+            };
+
+            //overlayutton.FlatStyle = FlatStyle.Flat;
+            overlayButton.BackColor = Color.FromArgb(180, Color.Black); // semi-transparent background
+            overlayButton.ForeColor = Color.White;
+            //overlayButton.Dock = DockStyle.Bottom;
+            overlayButton.SetBounds(pictureBox1.Width - 200 / 2, pictureBox1.Height, 200, 60); // position inside PictureBox
+            overlayButton.Click += new EventHandler(Capture);
+
+            pictureBox1.Controls.Add(overlayButton);
+
+            this.Width = 800;
+            this.Height = 600;
+            tableLayoutPanel1.ColumnCount = 1;
+            tableLayoutPanel1.RowCount = 1;
+            tableLayoutPanel1.Controls.Clear();
+            tableLayoutPanel1.Controls.Add(pictureBox1, 0, 1);
+            for (int i = 0; i < tableLayoutPanel1.ColumnCount; i++)
+            {
+                tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f / 2));
+            }
+            ClearAll();
+            tableLayoutPanel1.PerformLayout();
+        }
+
         private void ConfigureForTwo()
         {
             editToolStripMenuItem.Enabled = true;
@@ -462,7 +493,7 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
 
         private void ClearAll()
         {
-                       if (imageA != null)
+            if (imageA != null)
             {
                 imageA.Dispose();
                 imageA = null;
@@ -493,7 +524,7 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
             tableLayoutPanel1.Controls.Add(label1, 0, 0);
             tableLayoutPanel1.Controls.Add(label2, 1, 0);
             tableLayoutPanel1.Controls.Add(label3, 2, 0);
-            
+
 
             tableLayoutPanel1.RowStyles[0] = (new RowStyle(SizeType.AutoSize));
         }
@@ -589,7 +620,7 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
                 }
             }
         }
-        
+
 
         private void ProcessChromaKey(object sender, EventArgs e)
         {
@@ -655,12 +686,12 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
                     Color fg = a.GetPixel(x, y);
                     Color bg = imageB.GetPixel(x, y);
 
-                    
+
                     double distance = ColorDistance(fg, chromaKey);
 
                     if (distance < threshold)
                     {
-                        
+
                         double alpha = distance / threshold;
                         int r = (int)(fg.R * alpha + bg.R * (1 - alpha));
                         int g = (int)(fg.G * alpha + bg.G * (1 - alpha));
@@ -682,7 +713,7 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         }
 
         private bool isGreen(Color p)
-            
+
         {
             if (p.GetHue() >= 60 && p.GetHue() <= 130 && p.GetBrightness() >= 0.4 && p.GetBrightness() <= 0.3)
                 return true;
@@ -702,16 +733,19 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
             if (useCameraToolStripMenuItem.Text.Equals("Use Camera"))
                 StartCamera();
             else
+            {
                 closeCamera();
-
+                pictureBox1.Controls.Clear();
+            }
 
         }
 
         private void StartCamera()
         {
+            configureForCamera();
             if (_capture == null)
             {
-               _capture = new VideoCapture(0);
+                _capture = new VideoCapture(0);
             }
 
             // Start the timer for frame processing
@@ -730,6 +764,7 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
 
         private void closeCamera()
         {
+            ConfigureForTwo();
             if (_timer.Enabled)
             {
                 _timer.Stop();
@@ -785,43 +820,61 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
             if (buttSender != null)
             {
                 //    resultImage?.Dispose();
-                //    resultImage = imageA;
+                resultImage = (Bitmap)imageA.Clone();
 
                 switch (buttSender.Name)
                 {
                     case "laplascian":
                         if (mode == Mode.VideoProcessing)
+                        {
                             filter = FilterMode.Laplascian;
+                            return;
+                        }
                         else
                             AliacAlgo.AliacAlgo.LaplascianEmboss(resultImage);
                         break;
                     case "horzVert":
                         if (mode == Mode.VideoProcessing)
+                        {
                             filter = FilterMode.HorzVert;
+                            return;
+                        }
                         else
                             AliacAlgo.AliacAlgo.HorzVertEmboss(resultImage);
                         break;
                     case "allDirections":
                         if (mode == Mode.VideoProcessing)
+                        {
                             filter = FilterMode.AllDirections;
+                            return;
+                        }
                         else
                             AliacAlgo.AliacAlgo.AllDirectionsEmboss(resultImage);
                         break;
                     case "lossy":
                         if (mode == Mode.VideoProcessing)
+                        {
                             filter = FilterMode.Lossy;
+                            return;
+                        }
                         else
                             AliacAlgo.AliacAlgo.LossyEmboss(resultImage);
                         break;
                     case "horizontal":
                         if (mode == Mode.VideoProcessing)
+                        {
                             filter = FilterMode.Horizontal;
+                            return;
+                        }
                         else
                             AliacAlgo.AliacAlgo.HorizontalEmboss(resultImage);
                         break;
                     case "vertical":
-                        if (mode == Mode.VideoProcessing)
+                        if (mode == Mode.VideoProcessing) 
+                        { 
                             filter = FilterMode.Vertical;
+                            return;
+                        }
                         else
                             AliacAlgo.AliacAlgo.VerticalEmboss(resultImage);
                         break;
@@ -831,8 +884,8 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
                 }
 
 
-                //pictureBox2.Image?.Dispose();
-                //pictureBox2.Image = resultImage;
+                pictureBox2.Image?.Dispose();
+                pictureBox2.Image = resultImage;
             }
             else
             {
@@ -840,8 +893,36 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
             }
         }
 
+        private void Capture(Object sender, EventArgs eventArgs)
+        {
+            if (mode == Mode.VideoProcessing)
+            {
+                SaveFileDialog saveDialog = new SaveFileDialog();
+                saveDialog.Filter = "PNG Image|*.png|JPEG Image|*.jpg;*.jpeg";
+                DialogResult result = saveDialog.ShowDialog();
+
+                if (result != DialogResult.OK)
+                {
+                    return;
+                }
+
+                SaveImage(pictureBox1.Image, saveDialog.FileName);
+            }
+        }
+
+        private void meanRemovalToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            resultImage?.Dispose();
+            resultImage = imageA.Clone() as Bitmap;
+            AliacAlgo.AliacAlgo.MeanRemoval(resultImage, 9);
+            pictureBox2.Image?.Dispose();
+            pictureBox2.Image = resultImage;
+        }
     }
 
+   
+
+    
     //test
 }
 
