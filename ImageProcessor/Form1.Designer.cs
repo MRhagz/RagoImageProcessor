@@ -44,6 +44,7 @@
             this.smoothenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.guassianBlurToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sharpenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.meanRemovalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.embossToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.laplascian = new System.Windows.Forms.ToolStripMenuItem();
             this.horzVert = new System.Windows.Forms.ToolStripMenuItem();
@@ -127,6 +128,7 @@
             this.smoothenToolStripMenuItem,
             this.guassianBlurToolStripMenuItem,
             this.sharpenToolStripMenuItem,
+            this.meanRemovalToolStripMenuItem,
             this.embossToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 22);
@@ -185,8 +187,8 @@
             // 
             this.guassianBlurToolStripMenuItem.Name = "guassianBlurToolStripMenuItem";
             this.guassianBlurToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.guassianBlurToolStripMenuItem.Text = "Guassian Blur";
-            this.guassianBlurToolStripMenuItem.Click += new System.EventHandler(this.guassianBlurToolStripMenuItem_Click);
+            this.guassianBlurToolStripMenuItem.Text = "Gaussian Blur";
+            this.guassianBlurToolStripMenuItem.Click += new System.EventHandler(this.gaussianBlurToolStripMenuItem_Click);
             // 
             // sharpenToolStripMenuItem
             // 
@@ -194,6 +196,13 @@
             this.sharpenToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.sharpenToolStripMenuItem.Text = "Sharpen";
             this.sharpenToolStripMenuItem.Click += new System.EventHandler(this.sharpenToolStripMenuItem_Click);
+            // 
+            // meanRemovalToolStripMenuItem
+            // 
+            this.meanRemovalToolStripMenuItem.Name = "meanRemovalToolStripMenuItem";
+            this.meanRemovalToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.meanRemovalToolStripMenuItem.Text = "Mean Removal";
+            this.meanRemovalToolStripMenuItem.Click += new System.EventHandler(this.meanRemovalToolStripMenuItem_Click);
             // 
             // embossToolStripMenuItem
             // 
@@ -369,6 +378,7 @@
         private System.Windows.Forms.ToolStripMenuItem lossy;
         private System.Windows.Forms.ToolStripMenuItem horizontal;
         private System.Windows.Forms.ToolStripMenuItem vertical;
+        private System.Windows.Forms.ToolStripMenuItem meanRemovalToolStripMenuItem;
     }
 }
 

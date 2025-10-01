@@ -8,30 +8,39 @@ namespace ImageProcessor.Rago
     {
         // Delegate to define a per-pixel filter
         public delegate void PixelFilter(ref byte r, ref byte g, ref byte b);
+        public delegate void ConvolutionPixelFilter(ref Bitmap image);
 
         /// <summary>
         /// Applies a pixel-level filter to a bitmap using fast memory access (LockBits).
         /// </summary>
-        public static Bitmap ApplyFilter(Bitmap source, PixelFilter filter)
+        /// 
+
+        //public enum ConvolutionFilter
+        //{
+        //    Laplascian,
+        //    HorzVertEmboss,
+        //    ho
+        //}
+
+        public static void ApplyFiter(ref Bitmap source, PixelFilter filter)
         {
-            Bitmap result = new Bitmap(source.Width, source.Height, PixelFormat.Format24bppRgb);
-            Rectangle rect = new Rectangle(0, 0, source.Width, source.Height);
+            int width = source.Width;
+            int height = source.Height;
 
-            BitmapData srcData = source.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-            BitmapData dstData = result.LockBits(rect, ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
+            Rectangle rect = new Rectangle(0, 0, width, height);
 
+            BitmapData srcData = source.LockBits(rect, ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
             int stride = srcData.Stride;
-            IntPtr srcScan0 = srcData.Scan0;
-            IntPtr dstScan0 = dstData.Scan0;
 
+            IntPtr srcScan0 = srcData.Scan0;
+
+            
             unsafe
             {
                 byte* pSrc = (byte*)srcScan0;
-                byte* pDst = (byte*)dstScan0;
-
-                for (int y = 0; y < source.Height; y++)
+                for(int y = 0; y< height; y++)
                 {
-                    for (int x = 0; x < source.Width; x++)
+                    for(int x = 0; x < width; x++)
                     {
                         int idx = y * stride + x * 3;
 
@@ -40,18 +49,18 @@ namespace ImageProcessor.Rago
                         byte r = pSrc[idx + 2];
 
                         filter(ref r, ref g, ref b);
-
-                        pDst[idx] = b;
-                        pDst[idx + 1] = g;
-                        pDst[idx + 2] = r;
+                        pSrc[idx] = b;
+                        pSrc[idx + 1] = g;
+                        pSrc[idx + 2] = r;
                     }
                 }
             }
-
             source.UnlockBits(srcData);
-            result.UnlockBits(dstData);
+        }
 
-            return result;
+        public static void ApplyConvolutionFilter(ref Bitmap source, ConvolutionPixelFilter filter)
+        {
+            filter(ref source);
         }
 
         // Example Filters:
@@ -77,6 +86,60 @@ namespace ImageProcessor.Rago
             g = Clamp((int)(0.349 * originalR + 0.686 * originalG + 0.168 * originalB));
             b = Clamp((int)(0.272 * originalR + 0.534 * originalG + 0.131 * originalB));
         }
+
+        public static void Smoothen(ref Bitmap image)
+        {
+            AliacAlgo.AliacAlgo.Smooth(image, 1);
+        }
+
+        public static void GuassianBlur(ref Bitmap image)
+        {
+            AliacAlgo.AliacAlgo.GaussianBlur(image, 4);
+        }
+
+        public static void Sharpen(ref Bitmap image)
+        {
+            AliacAlgo.AliacAlgo.Sharpen(image, 11);
+        }
+
+        public static void MeanRemoval(ref Bitmap image)
+        {
+            AliacAlgo.AliacAlgo.MeanRemoval(image, 9);
+        }
+
+
+        public static void Laplascian(ref Bitmap image)
+        {
+            AliacAlgo.AliacAlgo.LaplascianEmboss(image);
+        }
+
+        public static void HorzVertEmboss(ref Bitmap image)
+        {
+            AliacAlgo.AliacAlgo.HorzVertEmboss(image);
+        }
+
+        public static void AllDirectionsEmboss(ref Bitmap image)
+        {
+            AliacAlgo.AliacAlgo.AllDirectionsEmboss(image);
+        }
+
+        public static void LossyEmboss(ref Bitmap image)
+        {
+            AliacAlgo.AliacAlgo.LossyEmboss(image);
+        }
+
+        public static void HorizontalEmboss(ref Bitmap image)
+        {
+            AliacAlgo.AliacAlgo.HorizontalEmboss(image);
+        }
+
+        public static void VerticalEmboss(ref Bitmap image)
+        {
+            AliacAlgo.AliacAlgo.VerticalEmboss(image);
+        }
+
+
+
 
         private static byte Clamp(int value)
         {
