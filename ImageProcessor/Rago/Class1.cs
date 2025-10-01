@@ -8,19 +8,19 @@ namespace ImageProcessor.Rago
     {
         // Delegate to define a per-pixel filter
         public delegate void PixelFilter(ref byte r, ref byte g, ref byte b);
+        public delegate void ConvolutionPixelFilter(ref Bitmap image);
 
         /// <summary>
         /// Applies a pixel-level filter to a bitmap using fast memory access (LockBits).
         /// </summary>
         /// 
 
-        public enum ConvolutionFilter
-        {
-            Laplascian,
-            GaussianBlur,
-            Sharpen,
-            EdgeDetect
-        }
+        //public enum ConvolutionFilter
+        //{
+        //    Laplascian,
+        //    HorzVertEmboss,
+        //    ho
+        //}
 
         public static void ApplyFiter(ref Bitmap source, PixelFilter filter)
         {
@@ -58,17 +58,9 @@ namespace ImageProcessor.Rago
             source.UnlockBits(srcData);
         }
 
-        public static void ApplyConvolutionFilter(Bitmap source, ConvolutionFilter filterType)
+        public static void ApplyConvolutionFilter(ref Bitmap source, ConvolutionPixelFilter filter)
         {
-            switch (filterType)
-            {
-                case ConvolutionFilter.Laplascian:
-                    Laplascian(source);
-                    break;
-                // Implement other cases as needed
-                default:
-                    throw new NotImplementedException($"Filter {filterType} not implemented.");
-            }
+            filter(ref source);
         }
          
         public static void ApplyConvolutionFilters(Bitmap source, PixelFilter filter) 
@@ -100,10 +92,37 @@ namespace ImageProcessor.Rago
             b = Clamp((int)(0.272 * originalR + 0.534 * originalG + 0.131 * originalB));
         }
 
-        public static void Laplascian(Bitmap image)
+        public static void Laplascian(ref Bitmap image)
         {
             AliacAlgo.AliacAlgo.LaplascianEmboss(image);
         }
+
+        public static void HorzVertEmboss(ref Bitmap image)
+        {
+            AliacAlgo.AliacAlgo.HorzVertEmboss(image);
+        }
+
+        public static void AllDirectionsEmboss(ref Bitmap image)
+        {
+            AliacAlgo.AliacAlgo.AllDirectionsEmboss(image);
+        }
+
+        public static void LossyEmboss(ref Bitmap image)
+        {
+            AliacAlgo.AliacAlgo.LossyEmboss(image);
+        }
+
+        public static void HorizontalEmboss(ref Bitmap image)
+        {
+            AliacAlgo.AliacAlgo.HorizontalEmboss(image);
+        }
+
+        public static void VerticalEmboss(ref Bitmap image)
+        {
+            AliacAlgo.AliacAlgo.VerticalEmboss(image);
+        }
+
+
 
         private static byte Clamp(int value)
         {

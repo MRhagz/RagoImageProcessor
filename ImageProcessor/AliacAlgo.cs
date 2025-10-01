@@ -217,11 +217,15 @@ namespace AliacAlgo
         public static bool HorzVertEmboss(Bitmap b)
         {
             ConvMatrix m = new ConvMatrix();
+            m.SetAll(0);
+
             m.TopMid = -1;
             m.Pixel = 4;
             m.MidLeft = -1;
             m.BottomMid = -1;
             m.MidRight = 1;
+
+           
 
             m.Factor = 1;
             m.Offset = 127;

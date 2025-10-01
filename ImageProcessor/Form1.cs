@@ -24,7 +24,12 @@ namespace ImageProcessor
             Greyscale,
             Inversion,
             Sepia,
-            Laplascian
+            Laplascian,
+            HorzVert,
+            AllDirections,
+            Lossy,
+            Horizontal,
+            Vertical,
         }
 
         private enum Mode
@@ -80,7 +85,23 @@ namespace ImageProcessor
                                 PixelFilters.ApplyFiter(ref filtered, Rago.PixelFilters.Sepia);
                                 break;
                             case FilterMode.Laplascian:
-                                AliacAlgo.AliacAlgo.LaplascianEmboss(filtered);
+                                //AliacAlgo.AliacAlgo.LaplascianEmboss(filtered);
+                                PixelFilters.ApplyConvolutionFilter(ref filtered, Rago.PixelFilters.Laplascian);
+                                break;
+                            case FilterMode.HorzVert:
+                                PixelFilters.ApplyConvolutionFilter(ref filtered, Rago.PixelFilters.HorzVertEmboss);
+                                break;
+                            case FilterMode.AllDirections:
+                                PixelFilters.ApplyConvolutionFilter(ref filtered, Rago.PixelFilters.AllDirectionsEmboss);
+                                break;
+                            case FilterMode.Lossy:
+                                PixelFilters.ApplyConvolutionFilter(ref filtered, Rago.PixelFilters.LossyEmboss);
+                                break;
+                            case FilterMode.Horizontal:
+                                PixelFilters.ApplyConvolutionFilter(ref filtered, Rago.PixelFilters.HorizontalEmboss);
+                                break;
+                            case FilterMode.Vertical:
+                                PixelFilters.ApplyConvolutionFilter(ref filtered, Rago.PixelFilters.VerticalEmboss);
                                 break;
                             default:
                                 break;
@@ -770,29 +791,39 @@ private void saveToolStripMenuItem_Click(object sender, EventArgs e)
                 {
                     case "laplascian":
                         if (mode == Mode.VideoProcessing)
-                        {
                             filter = FilterMode.Laplascian;
-                        }
                         else
-                        {
-
                             AliacAlgo.AliacAlgo.LaplascianEmboss(resultImage);
-                        }
                         break;
                     case "horzVert":
-                        AliacAlgo.AliacAlgo.HorzVertEmboss(resultImage);
+                        if (mode == Mode.VideoProcessing)
+                            filter = FilterMode.HorzVert;
+                        else
+                            AliacAlgo.AliacAlgo.HorzVertEmboss(resultImage);
                         break;
                     case "allDirections":
-                        AliacAlgo.AliacAlgo.AllDirectionsEmboss(resultImage);
-                        break ;
+                        if (mode == Mode.VideoProcessing)
+                            filter = FilterMode.AllDirections;
+                        else
+                            AliacAlgo.AliacAlgo.AllDirectionsEmboss(resultImage);
+                        break;
                     case "lossy":
-                        AliacAlgo.AliacAlgo.LossyEmboss(resultImage);
+                        if (mode == Mode.VideoProcessing)
+                            filter = FilterMode.Lossy;
+                        else
+                            AliacAlgo.AliacAlgo.LossyEmboss(resultImage);
                         break;
                     case "horizontal":
-                        AliacAlgo.AliacAlgo.HorizontalEmboss(resultImage);
+                        if (mode == Mode.VideoProcessing)
+                            filter = FilterMode.Horizontal;
+                        else
+                            AliacAlgo.AliacAlgo.HorizontalEmboss(resultImage);
                         break;
                     case "vertical":
-                        AliacAlgo.AliacAlgo.VerticalEmboss(resultImage);
+                        if (mode == Mode.VideoProcessing)
+                            filter = FilterMode.Vertical;
+                        else
+                            AliacAlgo.AliacAlgo.VerticalEmboss(resultImage);
                         break;
                     default:
                         MessageBox.Show("Unknown emboss type.");
